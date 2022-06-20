@@ -12,12 +12,15 @@ import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 
 import scala.compiletime.constValue
+import scala.compiletime.requireConst
 import scala.quoted.Expr
 import scala.quoted.Quotes
 import scala.annotation.transparentTrait
 
 inline def refineMV[T, P](inline t: T)(using inline p: Predicate[T, P]): Refined[T, P] =
-  inline if (p.isValid(t)) Refined.unsafeApply(t) else scala.compiletime.error("no")
+  inline if (p.isValid(t)) Refined.unsafeApply(t) else no
+
+inline def no = scala.compiletime.error("no")
 
 extension [T](inline t: T)
   inline def refined[P](using inline p: Predicate[T, P]): Refined[T, P] =
@@ -55,7 +58,12 @@ object Predicate {
     transparent inline def isValid(inline t: T): Boolean = !p.isValid(t)
 
   inline given Predicate[String, Empty] with
-    transparent inline def isValid(inline s: String): Boolean = ${ isValidMacro('s) }
+    transparent inline def isValid(inline s: String): Boolean =
+      requireConst(s)
+      isValidConst(s)
+
+    private transparent inline def isValidConst(inline s: String): Boolean =
+      ${ isValidMacro('s) }
 
     private def isValidMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
       expr match {
