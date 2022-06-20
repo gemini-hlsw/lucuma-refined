@@ -5,12 +5,12 @@ package lucuma.refined
 
 import eu.timepit.refined.boolean.Not
 import eu.timepit.refined.char.Letter
+import eu.timepit.refined.collection.Empty
+import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 import munit.FunSuite
-import eu.timepit.refined.collection.Empty
-import eu.timepit.refined.collection.NonEmpty
 
 class RefinedSuite extends FunSuite {
 
