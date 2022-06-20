@@ -3,15 +3,15 @@
 
 package lucuma.refined
 
-import munit.FunSuite
+import eu.timepit.refined.boolean.Not
 import eu.timepit.refined.char.Letter
 import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
-import eu.timepit.refined.boolean.Not
+import munit.FunSuite
 
 class RefinedSuite extends FunSuite {
-  
+
   inline def assertRefineError(code: String) =
     assert(compileErrors(code).contains("error: no"))
 
@@ -33,7 +33,7 @@ class RefinedSuite extends FunSuite {
     BigDecimal(1).refined[Positive]
     BigDecimal(Int.MaxValue).refined[Positive]
     assertRefineError("BigDecimal(0).refined[Positive]")
-    assertRefineError("BigDecimal(-1).refined[Positive]") 
+    assertRefineError("BigDecimal(-1).refined[Positive]")
   }
 
   test("negative integer") {
