@@ -9,6 +9,8 @@ import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 import munit.FunSuite
+import eu.timepit.refined.collection.Empty
+import eu.timepit.refined.collection.NonEmpty
 
 class RefinedSuite extends FunSuite {
 
@@ -58,6 +60,13 @@ class RefinedSuite extends FunSuite {
     assertRefineError("-1.refined[Not[Negative]]")
     assertRefineError("1.refined[Not[Positive]]")
     assertRefineError("'a'.refined[Not[Letter]]")
+  }
+
+  test("empty string") {
+    "".refined[Empty]
+    "carlos".refined[NonEmpty]
+    assertRefineError(""" "".refined[NonEmpty] """)
+    assertRefineError(""" "carlos".refined[Empty] """)
   }
 
 }

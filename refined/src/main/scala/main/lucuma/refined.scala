@@ -6,6 +6,7 @@ package lucuma.refined
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.boolean.Not
 import eu.timepit.refined.char.Letter
+import eu.timepit.refined.collection.Empty
 import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
@@ -13,6 +14,7 @@ import eu.timepit.refined.numeric.Positive
 import scala.compiletime.constValue
 import scala.quoted.Expr
 import scala.quoted.Quotes
+import scala.annotation.transparentTrait
 
 inline def refineMV[T, P](inline t: T)(using inline p: Predicate[T, P]): Refined[T, P] =
   inline if (p.isValid(t)) Refined.unsafeApply(t) else scala.compiletime.error("no")
@@ -51,4 +53,13 @@ object Predicate {
 
   inline given [T, A, P <: Predicate[T, A]](using p: P): Predicate[T, Not[A]] with
     transparent inline def isValid(inline t: T): Boolean = !p.isValid(t)
+
+  inline given Predicate[String, Empty] with
+    transparent inline def isValid(inline s: String): Boolean = ${ isValidMacro('s) }
+
+    private def isValidMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
+      expr match {
+        case '{ "" } => '{ true }
+        case _       => '{ false }
+      }
 }
