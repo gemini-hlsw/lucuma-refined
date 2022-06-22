@@ -20,6 +20,7 @@ import shapeless.ops.nat.ToInt
 import scala.annotation.transparentTrait
 import scala.compiletime.constValue
 import scala.compiletime.requireConst
+import scala.compiletime.summonInline
 import scala.quoted.Expr
 import scala.quoted.Quotes
 
@@ -58,6 +59,18 @@ object Predicate {
 
   inline given [N <: Int]: Predicate[Int, Less[N]] with
     transparent inline def isValid(inline t: Int): Boolean = t < constValue[N]
+
+  inline given [N <: BigDecimal]: Predicate[BigDecimal, Greater[N]] with
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${ greaterBigDecimalMacro('t, '{summonInline[N]}) }
+
+  private def greaterBigDecimalMacro(expr: Expr[BigDecimal], x: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
+    (expr, x) match {
+      case ('{ BigDecimal($d: Double) }, '{ BigDecimal($x: Double) }) => '{ $d > $x }
+      case _                        => '{ no }
+    }
+
+  inline given [N <: BigDecimal]: Predicate[BigDecimal, Less[N]] with
+    transparent inline def isValid(inline t: BigDecimal): Boolean = t < summonInline[N]
 
   inline given Predicate[BigDecimal, Positive] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }

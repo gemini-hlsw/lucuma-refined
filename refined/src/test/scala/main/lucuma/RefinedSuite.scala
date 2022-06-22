@@ -100,4 +100,14 @@ class RefinedSuite extends FunSuite {
     )
   }
 
+  opaque type BigDecimalLower <: BigDecimal = BigDecimal
+  given BigDecimalLower: BigDecimalLower = BigDecimal(1.0)
+  opaque type BigDecimalUpper <: BigDecimal = BigDecimal
+  given BigDecimalUpper: BigDecimalUpper = BigDecimal(3.0)
+
+  test("abc".only) {
+    BigDecimal(2.0).refined[Greater[BigDecimalLower.type]]
+  }
+
+
 }
