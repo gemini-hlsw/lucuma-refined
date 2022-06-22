@@ -9,19 +9,19 @@ import eu.timepit.refined.boolean.Not
 import eu.timepit.refined.boolean.Or
 import eu.timepit.refined.char.Letter
 import eu.timepit.refined.collection.Empty
+import eu.timepit.refined.numeric.Greater
 import eu.timepit.refined.numeric.Interval
+import eu.timepit.refined.numeric.Less
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
+import shapeless.Nat
+import shapeless.ops.nat.ToInt
 
 import scala.annotation.transparentTrait
 import scala.compiletime.constValue
 import scala.compiletime.requireConst
 import scala.quoted.Expr
 import scala.quoted.Quotes
-import eu.timepit.refined.numeric.Greater
-import shapeless.ops.nat.ToInt
-import shapeless.Nat
-import eu.timepit.refined.numeric.Less
 
 inline def refineMV[T, P](inline t: T)(using inline p: Predicate[T, P]): Refined[T, P] =
   inline if (p.isValid(t)) Refined.unsafeApply(t) else no

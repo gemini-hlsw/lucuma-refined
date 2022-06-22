@@ -9,12 +9,12 @@ import eu.timepit.refined.boolean.Or
 import eu.timepit.refined.char.Letter
 import eu.timepit.refined.collection.Empty
 import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.numeric.Greater
 import eu.timepit.refined.numeric.Interval
+import eu.timepit.refined.numeric.Less
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 import munit.FunSuite
-import eu.timepit.refined.numeric.Greater
-import eu.timepit.refined.numeric.Less
 
 class RefinedSuite extends FunSuite {
 
