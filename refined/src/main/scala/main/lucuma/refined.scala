@@ -4,12 +4,18 @@
 package lucuma.refined
 
 import eu.timepit.refined.api.Refined
+import eu.timepit.refined.boolean.And
 import eu.timepit.refined.boolean.Not
+import eu.timepit.refined.boolean.Or
 import eu.timepit.refined.char.Letter
 import eu.timepit.refined.collection.Empty
+import eu.timepit.refined.numeric.Greater
 import eu.timepit.refined.numeric.Interval
+import eu.timepit.refined.numeric.Less
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
+import shapeless.Nat
+import shapeless.ops.nat.ToInt
 
 import scala.annotation.transparentTrait
 import scala.compiletime.constValue
@@ -32,12 +38,26 @@ trait Predicate[T, P] {
 
 object Predicate {
 
-  inline given [M <: Int, N <: Int]: Predicate[Int, Interval.Closed[M, N]] with
-    transparent inline def isValid(inline t: Int): Boolean =
-      constValue[M] <= t && t <= constValue[N]
+  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
+    predA: PA,
+    predB: PB
+  ): Predicate[T, Or[A, B]] with
+    transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) || predB.isValid(t)
+
+  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
+    predA: PA,
+    predB: PB
+  ): Predicate[T, And[A, B]] with
+    transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) && predB.isValid(t)
 
   inline given Predicate[Int, Positive] with
     transparent inline def isValid(inline t: Int): Boolean = t > 0
+
+  inline given [N <: Int]: Predicate[Int, Greater[N]] with
+    transparent inline def isValid(inline t: Int): Boolean = t > constValue[N]
+
+  inline given [N <: Int]: Predicate[Int, Less[N]] with
+    transparent inline def isValid(inline t: Int): Boolean = t < constValue[N]
 
   inline given Predicate[BigDecimal, Positive] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
