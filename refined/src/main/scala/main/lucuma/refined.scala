@@ -34,10 +34,16 @@ trait Predicate[T, P] {
 
 object Predicate {
 
-  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using predA: PA, predB: PB): Predicate[T, Or[A, B]] with
+  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
+    predA: PA,
+    predB: PB
+  ): Predicate[T, Or[A, B]] with
     transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) || predB.isValid(t)
 
-  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using predA: PA, predB: PB): Predicate[T, And[A, B]] with
+  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
+    predA: PA,
+    predB: PB
+  ): Predicate[T, And[A, B]] with
     transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) && predB.isValid(t)
 
   inline given [M <: Int, N <: Int]: Predicate[Int, Interval.Closed[M, N]] with
