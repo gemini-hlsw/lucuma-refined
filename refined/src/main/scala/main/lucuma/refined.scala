@@ -18,6 +18,10 @@ import scala.compiletime.constValue
 import scala.compiletime.requireConst
 import scala.quoted.Expr
 import scala.quoted.Quotes
+import eu.timepit.refined.numeric.Greater
+import shapeless.ops.nat.ToInt
+import shapeless.Nat
+import eu.timepit.refined.numeric.Less
 
 inline def refineMV[T, P](inline t: T)(using inline p: Predicate[T, P]): Refined[T, P] =
   inline if (p.isValid(t)) Refined.unsafeApply(t) else no
@@ -46,12 +50,14 @@ object Predicate {
   ): Predicate[T, And[A, B]] with
     transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) && predB.isValid(t)
 
-  inline given [M <: Int, N <: Int]: Predicate[Int, Interval.Closed[M, N]] with
-    transparent inline def isValid(inline t: Int): Boolean =
-      constValue[M] <= t && t <= constValue[N]
-
   inline given Predicate[Int, Positive] with
     transparent inline def isValid(inline t: Int): Boolean = t > 0
+
+  inline given [N <: Int]: Predicate[Int, Greater[N]] with
+    transparent inline def isValid(inline t: Int): Boolean = t > constValue[N]
+
+  inline given [N <: Int]: Predicate[Int, Less[N]] with
+    transparent inline def isValid(inline t: Int): Boolean = t < constValue[N]
 
   inline given Predicate[BigDecimal, Positive] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }

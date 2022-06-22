@@ -13,6 +13,8 @@ import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 import munit.FunSuite
+import eu.timepit.refined.numeric.Greater
+import eu.timepit.refined.numeric.Less
 
 class RefinedSuite extends FunSuite {
 
@@ -29,6 +31,16 @@ class RefinedSuite extends FunSuite {
     0.refined[Not[Positive] And Not[Negative]]
     assertRefineError("1.refined[Positive And Negative]")
     assertRefineError("-1.refined[Positive And Negative]")
+  }
+
+  test("greater") {
+    2.refined[Greater[1]]
+    assertRefineError("1.refined[Greater[2]]")
+  }
+
+  test("less") {
+    1.refined[Less[2]]
+    assertRefineError("2.refined[Less[1]]")
   }
 
   test("closed interval") {
