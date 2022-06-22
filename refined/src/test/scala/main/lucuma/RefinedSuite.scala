@@ -3,7 +3,9 @@
 
 package lucuma.refined
 
+import eu.timepit.refined.boolean.And
 import eu.timepit.refined.boolean.Not
+import eu.timepit.refined.boolean.Or
 import eu.timepit.refined.char.Letter
 import eu.timepit.refined.collection.Empty
 import eu.timepit.refined.collection.NonEmpty
@@ -16,6 +18,18 @@ class RefinedSuite extends FunSuite {
 
   inline def assertRefineError(code: String) =
     assert(compileErrors(code).contains("error: no"))
+
+  test("or") {
+    1.refined[Positive Or Negative]
+    -1.refined[Positive Or Negative]
+    assertRefineError("0.refined[Positive Or Negative]")
+  }
+
+  test("and") {
+    0.refined[Not[Positive] And Not[Negative]]
+    assertRefineError("1.refined[Positive And Negative]")
+    assertRefineError("-1.refined[Positive And Negative]")
+  }
 
   test("closed interval") {
     0.refined[Interval.Closed[0, 2]]
