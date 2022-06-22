@@ -40,12 +40,13 @@ object Predicate {
     transparent inline def isValid(inline t: Int): Boolean = t > 0
 
   inline given Predicate[BigDecimal, Positive] with
-    transparent inline def isValid(inline t: BigDecimal): Boolean                 = ${ isValidMacro('t) }
-    private def isValidMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
-      expr match {
-        case '{ BigDecimal($i: Int) } => '{ $i > 0 }
-        case _                        => '{ no }
-      }
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
+
+  private def positiveBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
+    expr match {
+      case '{ BigDecimal($i: Int) } => '{ $i > 0 }
+      case _                        => '{ no }
+    }
 
   inline given Predicate[Int, Negative] with
     transparent inline def isValid(inline t: Int): Boolean = t < 0
@@ -63,11 +64,11 @@ object Predicate {
       isValidConst(s)
 
     private transparent inline def isValidConst(inline s: String): Boolean =
-      ${ isValidMacro('s) }
+      ${ emptyStringMacro('s) }
 
-    private def isValidMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
-      expr match {
-        case '{ "" } => '{ true }
-        case _       => '{ false }
-      }
+  private def emptyStringMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
+    expr match {
+      case '{ "" } => '{ true }
+      case _       => '{ false }
+    }
 }
