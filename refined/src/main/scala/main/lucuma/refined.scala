@@ -32,6 +32,9 @@ extension [T](inline t: T)
   inline def refined[P](using inline p: Predicate[T, P]): Refined[T, P] =
     refineMV(t)
 
+extension [T, P](inline t: Refined[T, P])
+  inline def inferred[C](using Inference[P, C]): Refined[T, C] = ???
+
 trait Predicate[T, P] {
   transparent inline def isValid(inline t: T): Boolean
 }
@@ -91,4 +94,14 @@ object Predicate {
       case '{ "" } => '{ true }
       case _       => '{ false }
     }
+}
+
+trait Inference[P, C] {
+  transparent inline def isValid: Boolean
+}
+
+object Inference {
+
+  inline given Inference[Positive]
+
 }

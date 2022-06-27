@@ -100,4 +100,9 @@ class RefinedSuite extends FunSuite {
     )
   }
 
+  test("infer PosInt is NonNegInt") {
+    def x: PosInt = 1.refined
+    x.inferred[NonNegative]
+  }
+
 }
