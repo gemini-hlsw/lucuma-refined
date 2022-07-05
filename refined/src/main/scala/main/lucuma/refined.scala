@@ -64,8 +64,11 @@ object Predicate {
 
   private def positiveBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
     expr match {
-      case '{ BigDecimal($i: Int) } => '{ $i > 0 }
-      case _                        => '{ no }
+      case '{ BigDecimal($i: Int) }    => '{ $i > 0 }
+      case '{ BigDecimal($s: String) } =>
+        if BigDecimal(s.valueOrAbort) > 0 then '{ true }
+        else '{ false }
+      case _                           => '{ no }
     }
 
   inline given Predicate[Int, Negative] with
