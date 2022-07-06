@@ -4,7 +4,7 @@ ThisBuild / crossScalaVersions := Seq("3.1.3")
 
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
-val refinedVersion = "0.10.0"
+val refinedVersion = "0.10.1"
 
 lazy val root = tlCrossRootProject.aggregate(refined)
 
