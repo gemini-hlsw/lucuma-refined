@@ -50,7 +50,7 @@ class RefinedSuite extends FunSuite {
 
   test("less long") {
     1L.refined[Less[2L]]
-    assertRefineError("2.refined[Less[1]]")
+    assertRefineError("2L.refined[Less[1L]]")
   }
 
   test("closed interval") {
