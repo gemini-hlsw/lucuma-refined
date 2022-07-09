@@ -43,6 +43,16 @@ class RefinedSuite extends FunSuite {
     assertRefineError("2.refined[Less[1]]")
   }
 
+  test("greater long") {
+    2L.refined[Greater[1L]]
+    assertRefineError("1L.refined[Greater[2L]]")
+  }
+
+  test("less long") {
+    1L.refined[Less[2L]]
+    assertRefineError("2L.refined[Less[1L]]")
+  }
+
   test("closed interval") {
     0.refined[Interval.Closed[0, 2]]
     1.refined[Interval.Closed[0, 2]]
@@ -55,6 +65,13 @@ class RefinedSuite extends FunSuite {
     Int.MaxValue.refined[Positive]
     assertRefineError("0.refined[Positive]")
     assertRefineError("-1.refined[Positive]")
+  }
+
+  test("positive Long") {
+    1L.refined[Positive]
+    Long.MaxValue.refined[Positive]
+    assertRefineError("0L.refined[Positive]")
+    assertRefineError("-1L.refined[Positive]")
   }
 
   test("positive bigdecimal") {
@@ -72,6 +89,13 @@ class RefinedSuite extends FunSuite {
     Int.MinValue.refined[Negative]
     assertRefineError("0.refined[Negative]")
     assertRefineError("1.refined[Negative]")
+  }
+
+  test("negative long") {
+    -1L.refined[Negative]
+    Long.MinValue.refined[Negative]
+    assertRefineError("0L.refined[Negative]")
+    assertRefineError("1L.refined[Negative]")
   }
 
   test("letter char") {
