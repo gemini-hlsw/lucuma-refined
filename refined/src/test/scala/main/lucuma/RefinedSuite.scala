@@ -45,7 +45,7 @@ class RefinedSuite extends FunSuite {
 
   test("greater long") {
     2L.refined[Greater[1L]]
-    assertRefineError("1.refined[Greater[2]]")
+    assertRefineError("1L.refined[Greater[2L]]")
   }
 
   test("less long") {
