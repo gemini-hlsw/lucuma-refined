@@ -86,7 +86,6 @@ object Predicate {
       case _                           => '{ no }
     }
 
-
   inline given Predicate[Char, Letter] with
     transparent inline def isValid(inline t: Char): Boolean =
       ('a' <= t && t <= 'z') || ('A' <= t && t <= 'Z')
