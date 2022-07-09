@@ -59,6 +59,21 @@ object Predicate {
   inline given [N <: Int]: Predicate[Int, Less[N]] with
     transparent inline def isValid(inline t: Int): Boolean = t < constValue[N]
 
+  inline given Predicate[Int, Negative] with
+    transparent inline def isValid(inline t: Int): Boolean = t < 0
+
+  inline given Predicate[Long, Positive] with
+    transparent inline def isValid(inline t: Long): Boolean = t > 0
+
+  inline given [N <: Long]: Predicate[Long, Greater[N]] with
+    transparent inline def isValid(inline t: Long): Boolean = t > constValue[N]
+
+  inline given [N <: Long]: Predicate[Long, Less[N]] with
+    transparent inline def isValid(inline t: Long): Boolean = t < constValue[N]
+
+  inline given Predicate[Long, Negative] with
+    transparent inline def isValid(inline t: Long): Boolean = t < 0
+
   inline given Predicate[BigDecimal, Positive] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
 
@@ -71,8 +86,6 @@ object Predicate {
       case _                           => '{ no }
     }
 
-  inline given Predicate[Int, Negative] with
-    transparent inline def isValid(inline t: Int): Boolean = t < 0
 
   inline given Predicate[Char, Letter] with
     transparent inline def isValid(inline t: Char): Boolean =
