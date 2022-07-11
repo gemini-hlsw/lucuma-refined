@@ -80,9 +80,7 @@ object Predicate {
   private def positiveBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
     expr match {
       case '{ BigDecimal($i: Int) }    => '{ $i > 0 }
-      case '{ BigDecimal($s: String) } =>
-        if BigDecimal(s.valueOrAbort) > 0 then '{ true }
-        else '{ false }
+      case '{ BigDecimal($s: String) } => Expr(BigDecimal(s.valueOrAbort) > 0)
       case _                           => '{ no }
     }
 
@@ -95,15 +93,8 @@ object Predicate {
 
   inline given Predicate[String, Empty] with
     transparent inline def isValid(inline s: String): Boolean =
-      requireConst(s)
-      isValidConst(s)
-
-    private transparent inline def isValidConst(inline s: String): Boolean =
       ${ emptyStringMacro('s) }
 
   private def emptyStringMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
-    expr match {
-      case '{ "" } => '{ true }
-      case _       => '{ false }
-    }
+    Expr(expr.valueOrAbort.isEmpty)
 }
