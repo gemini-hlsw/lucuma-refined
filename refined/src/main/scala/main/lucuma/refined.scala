@@ -84,6 +84,18 @@ object Predicate {
       case _                           => '{ no }
     }
 
+  inline given Predicate[BigDecimal, Negative] with
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${
+      negativeBigDecimalMacro('t)
+    }
+
+  private def negativeBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
+    expr match {
+      case '{ BigDecimal($i: Int) }    => '{ $i < 0 }
+      case '{ BigDecimal($s: String) } => Expr(BigDecimal(s.valueOrAbort) < 0)
+      case _                           => '{ no }
+    }
+
   inline given Predicate[Char, Letter] with
     transparent inline def isValid(inline t: Char): Boolean =
       ('a' <= t && t <= 'z') || ('A' <= t && t <= 'Z')

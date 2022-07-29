@@ -84,6 +84,16 @@ class RefinedSuite extends FunSuite {
     assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Positive]]")
   }
 
+  test("negative bigdecimal") {
+    BigDecimal(-1).refined[Negative]
+    BigDecimal("-1.23").refined[Negative]
+    BigDecimal(Int.MinValue).refined[Negative]
+    assertRefineError("BigDecimal(0).refined[Negative]")
+    assertRefineError("BigDecimal(1).refined[Negative]")
+    assertRefineError("""BigDecimal("1.23").refined[Negative]""")
+    assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Negative]]")
+  }
+
   test("negative integer") {
     -1.refined[Negative]
     Int.MinValue.refined[Negative]
