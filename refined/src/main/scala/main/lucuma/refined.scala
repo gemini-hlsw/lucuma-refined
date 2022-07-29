@@ -13,7 +13,6 @@ import eu.timepit.refined.numeric.Greater
 import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Less
 import eu.timepit.refined.numeric.Negative
-import eu.timepit.refined.numeric.NonNegative
 import eu.timepit.refined.numeric.Positive
 import shapeless.Nat
 import shapeless.ops.nat.ToInt
@@ -85,15 +84,15 @@ object Predicate {
       case _                           => '{ no }
     }
 
-  inline given Predicate[BigDecimal, NonNegative] with
+  inline given Predicate[BigDecimal, Negative] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${
-      nonNegativeBigDecimalMacro('t)
+      negativeBigDecimalMacro('t)
     }
 
-  private def nonNegativeBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
+  private def negativeBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
     expr match {
-      case '{ BigDecimal($i: Int) }    => '{ !($i < 0) }
-      case '{ BigDecimal($s: String) } => Expr(!(BigDecimal(s.valueOrAbort) < 0))
+      case '{ BigDecimal($i: Int) }    => '{ $i < 0 }
+      case '{ BigDecimal($s: String) } => Expr(BigDecimal(s.valueOrAbort) < 0)
       case _                           => '{ no }
     }
 

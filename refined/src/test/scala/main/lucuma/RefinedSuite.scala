@@ -13,7 +13,6 @@ import eu.timepit.refined.numeric.Greater
 import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.numeric.Less
 import eu.timepit.refined.numeric.Negative
-import eu.timepit.refined.numeric.NonNegative
 import eu.timepit.refined.numeric.Positive
 import munit.FunSuite
 
@@ -85,15 +84,14 @@ class RefinedSuite extends FunSuite {
     assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Positive]]")
   }
 
-  test("non-negative bigdecimal") {
-    BigDecimal(0).refined[NonNegative]
-    BigDecimal("0").refined[NonNegative]
-    BigDecimal(1).refined[NonNegative]
-    BigDecimal("1.23").refined[NonNegative]
-    BigDecimal(Int.MaxValue).refined[NonNegative]
-    assertRefineError("BigDecimal(-1).refined[NonNegative]")
-    assertRefineError("""BigDecimal("-1.23").refined[NonNegative]""")
-    assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[NonNegative]]")
+  test("negative bigdecimal") {
+    BigDecimal(-1).refined[Negative]
+    BigDecimal("-1.23").refined[Negative]
+    BigDecimal(Int.MinValue).refined[Negative]
+    assertRefineError("BigDecimal(0).refined[Negative]")
+    assertRefineError("BigDecimal(1).refined[Negative]")
+    assertRefineError("""BigDecimal("1.23").refined[Negative]""")
+    assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Negative]]")
   }
 
   test("negative integer") {
