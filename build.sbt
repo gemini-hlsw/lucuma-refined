@@ -15,6 +15,6 @@ lazy val refined = crossProject(JVMPlatform, JSPlatform)
     name := "lucuma-refined",
     libraryDependencies ++= Seq(
       "eu.timepit"    %%% "refined" % refinedVersion,
-      "org.scalameta" %%% "munit"   % "1.0.0-M7" % Test
+      "org.scalameta" %%% "munit"   % "1.0.0-M8" % Test
     )
   )
