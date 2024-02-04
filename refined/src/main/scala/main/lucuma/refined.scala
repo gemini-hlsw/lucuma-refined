@@ -16,6 +16,7 @@ import eu.timepit.refined.numeric.Positive
 
 import scala.compiletime.constValue
 import scala.quoted.Expr
+import scala.quoted.FromExpr
 import scala.quoted.Quotes
 
 inline def refineMV[T, P](inline t: T)(using inline p: Predicate[T, P]): Refined[T, P] =
@@ -72,12 +73,26 @@ object Predicate {
   inline given Predicate[BigDecimal, Positive] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
 
+  private given FromExpr[BigDecimal] with
+    def unapply(value: Expr[BigDecimal])(using Quotes): Option[BigDecimal] =
+      PartialFunction.condOpt(value) {
+        case '{ BigDecimal(${ Expr(x) }: String) } =>
+          BigDecimal(x)
+        case '{ BigDecimal(${ Expr(x) }: Int) }    =>
+          BigDecimal(x)
+        case '{ BigDecimal(${ Expr(x) }: Long) }   =>
+          BigDecimal(x)
+        case '{ BigDecimal(${ Expr(x) }: Double) } =>
+          BigDecimal(x)
+      }
+
   private def positiveBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
-    expr match {
-      case '{ BigDecimal($i: Int) }    => '{ $i > 0 }
-      case '{ BigDecimal($s: String) } => Expr(BigDecimal(s.valueOrAbort) > 0)
-      case _                           => '{ no }
-    }
+    expr match
+      case '{ ${ Expr(x) }: BigDecimal } =>
+        if x > 0 then '{ true }
+        else '{ false }
+      case _                             =>
+        '{ no }
 
   inline given Predicate[BigDecimal, Negative] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${
@@ -85,11 +100,12 @@ object Predicate {
     }
 
   private def negativeBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
-    expr match {
-      case '{ BigDecimal($i: Int) }    => '{ $i < 0 }
-      case '{ BigDecimal($s: String) } => Expr(BigDecimal(s.valueOrAbort) < 0)
-      case _                           => '{ no }
-    }
+    expr match
+      case '{ ${ Expr(x) }: BigDecimal } =>
+        if x < 0 then '{ true }
+        else '{ false }
+      case _                             =>
+        '{ no }
 
   inline given Predicate[Char, Letter] with
     transparent inline def isValid(inline t: Char): Boolean =
