@@ -78,20 +78,28 @@ class RefinedSuite extends FunSuite {
     BigDecimal(1).refined[Positive]
     BigDecimal("1.23").refined[Positive]
     BigDecimal(Int.MaxValue).refined[Positive]
+    BigDecimal(1.5).refined[Positive]
+    BigDecimal(123L).refined[Positive]
     assertRefineError("BigDecimal(0).refined[Positive]")
     assertRefineError("""BigDecimal("-1.23").refined[Positive]""")
     assertRefineError("BigDecimal(-1).refined[Positive]")
     assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Positive]]")
+    assertRefineError("BigDecimal(-1.5).refined[Positive]")
+    assertRefineError("BigDecimal(-123L).refined[Positive]")
   }
 
   test("negative bigdecimal") {
     BigDecimal(-1).refined[Negative]
     BigDecimal("-1.23").refined[Negative]
     BigDecimal(Int.MinValue).refined[Negative]
+    BigDecimal(-1.5).refined[Negative]
+    BigDecimal(-123L).refined[Negative]
     assertRefineError("BigDecimal(0).refined[Negative]")
     assertRefineError("BigDecimal(1).refined[Negative]")
     assertRefineError("""BigDecimal("1.23").refined[Negative]""")
     assertRefineError("BigDecimal(scala.util.Random.nextLong()).refined[Not[Negative]]")
+    assertRefineError("BigDecimal(1.5).refined[Negative]")
+    assertRefineError("BigDecimal(123L).refined[Negative]")
   }
 
   test("negative integer") {
