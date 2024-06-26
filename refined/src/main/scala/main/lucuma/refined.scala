@@ -15,6 +15,7 @@ import eu.timepit.refined.numeric.Negative
 import eu.timepit.refined.numeric.Positive
 
 import scala.compiletime.constValue
+import scala.compiletime.summonFrom
 import scala.quoted.Expr
 import scala.quoted.FromExpr
 import scala.quoted.Quotes
@@ -29,49 +30,53 @@ extension [T](inline t: T)
     refineMV(t)
 
 trait Predicate[T, P] {
-  transparent inline def isValid(inline t: T): Boolean
+  inline def isValid(inline t: T): Boolean
 }
 
 object Predicate {
 
-  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
-    predA: PA,
-    predB: PB
-  ): Predicate[T, Or[A, B]] with
-    transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) || predB.isValid(t)
+  inline given [T, A, B]: Predicate[T, Or[A, B]] with
+    inline def isValid(inline t: T): Boolean =
+      summonFrom { case predA: Predicate[T, A] =>
+        summonFrom { case predB: Predicate[T, B] =>
+          predA.isValid(t) || predB.isValid(t)
+        }
+      }
 
-  inline given [T, A, B, PA <: Predicate[T, A], PB <: Predicate[T, B]](using
-    predA: PA,
-    predB: PB
-  ): Predicate[T, And[A, B]] with
-    transparent inline def isValid(inline t: T): Boolean = predA.isValid(t) && predB.isValid(t)
+  inline given [T, A, B]: Predicate[T, And[A, B]] with
+    inline def isValid(inline t: T): Boolean =
+      summonFrom { case predA: Predicate[T, A] =>
+        summonFrom { case predB: Predicate[T, B] =>
+          predA.isValid(t) && predB.isValid(t)
+        }
+      }
 
   inline given Predicate[Int, Positive] with
-    transparent inline def isValid(inline t: Int): Boolean = t > 0
+    inline def isValid(inline t: Int): Boolean = t > 0
 
   inline given [N <: Int]: Predicate[Int, Greater[N]] with
-    transparent inline def isValid(inline t: Int): Boolean = t > constValue[N]
+    inline def isValid(inline t: Int): Boolean = t > constValue[N]
 
   inline given [N <: Int]: Predicate[Int, Less[N]] with
-    transparent inline def isValid(inline t: Int): Boolean = t < constValue[N]
+    inline def isValid(inline t: Int): Boolean = t < constValue[N]
 
   inline given Predicate[Int, Negative] with
-    transparent inline def isValid(inline t: Int): Boolean = t < 0
+    inline def isValid(inline t: Int): Boolean = t < 0
 
   inline given Predicate[Long, Positive] with
-    transparent inline def isValid(inline t: Long): Boolean = t > 0
+    inline def isValid(inline t: Long): Boolean = t > 0
 
   inline given [N <: Long]: Predicate[Long, Greater[N]] with
-    transparent inline def isValid(inline t: Long): Boolean = t > constValue[N]
+    inline def isValid(inline t: Long): Boolean = t > constValue[N]
 
   inline given [N <: Long]: Predicate[Long, Less[N]] with
-    transparent inline def isValid(inline t: Long): Boolean = t < constValue[N]
+    inline def isValid(inline t: Long): Boolean = t < constValue[N]
 
   inline given Predicate[Long, Negative] with
-    transparent inline def isValid(inline t: Long): Boolean = t < 0
+    inline def isValid(inline t: Long): Boolean = t < 0
 
   inline given Predicate[BigDecimal, Positive] with
-    transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
+    inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
 
   private given FromExpr[BigDecimal] with
     def unapply(value: Expr[BigDecimal])(using Quotes): Option[BigDecimal] =
@@ -95,7 +100,7 @@ object Predicate {
         '{ no }
 
   inline given Predicate[BigDecimal, Negative] with
-    transparent inline def isValid(inline t: BigDecimal): Boolean = ${
+    inline def isValid(inline t: BigDecimal): Boolean = ${
       negativeBigDecimalMacro('t)
     }
 
@@ -108,14 +113,17 @@ object Predicate {
         '{ no }
 
   inline given Predicate[Char, Letter] with
-    transparent inline def isValid(inline t: Char): Boolean =
+    inline def isValid(inline t: Char): Boolean =
       ('a' <= t && t <= 'z') || ('A' <= t && t <= 'Z')
 
-  inline given [T, A, P <: Predicate[T, A]](using p: P): Predicate[T, Not[A]] with
-    transparent inline def isValid(inline t: T): Boolean = !p.isValid(t)
+  inline given [T, A]: Predicate[T, Not[A]] with
+    inline def isValid(inline t: T): Boolean =
+      summonFrom { case p: Predicate[T, A] =>
+        !p.isValid(t)
+      }
 
   inline given Predicate[String, Empty] with
-    transparent inline def isValid(inline s: String): Boolean =
+    inline def isValid(inline s: String): Boolean =
       ${ emptyStringMacro('s) }
 
   private def emptyStringMacro(expr: Expr[String])(using Quotes): Expr[Boolean] =
