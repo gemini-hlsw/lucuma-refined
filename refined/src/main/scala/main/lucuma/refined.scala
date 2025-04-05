@@ -71,7 +71,19 @@ object Predicate {
     transparent inline def isValid(inline t: Long): Boolean = t < 0
 
   inline given Predicate[BigDecimal, Positive] with
-    transparent inline def isValid(inline t: BigDecimal): Boolean = ${ positiveBigDecimalMacro('t) }
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${
+      greaterBigDecimalMacro('t, '{ 0 })
+    }
+
+  inline given [N <: Double]: Predicate[BigDecimal, Greater[N]] with
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${
+      greaterBigDecimalMacro('t, '{ constValue[N] })
+    }
+
+  inline given [N <: Double]: Predicate[BigDecimal, Less[N]] with
+    transparent inline def isValid(inline t: BigDecimal): Boolean = ${
+      lessBigDecimalMacro('t, '{ constValue[N] })
+    }
 
   private given FromExpr[BigDecimal] with
     def unapply(value: Expr[BigDecimal])(using Quotes): Option[BigDecimal] =
@@ -86,25 +98,29 @@ object Predicate {
           BigDecimal(x)
       }
 
-  private def positiveBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
-    expr match
-      case '{ ${ Expr(x) }: BigDecimal } =>
-        if x > 0 then '{ true }
+  private def greaterBigDecimalMacro(expr: Expr[BigDecimal], bound: Expr[Double])(using
+    Quotes
+  ): Expr[Boolean] =
+    (expr, bound) match
+      case ('{ ${ Expr(x) }: BigDecimal }, '{ ${ Expr(y) }: Double }) =>
+        if x > BigDecimal(y) then '{ true }
         else '{ false }
-      case _                             =>
+      case _                                                          =>
         '{ no }
 
   inline given Predicate[BigDecimal, Negative] with
     transparent inline def isValid(inline t: BigDecimal): Boolean = ${
-      negativeBigDecimalMacro('t)
+      lessBigDecimalMacro('t, '{ 0 })
     }
 
-  private def negativeBigDecimalMacro(expr: Expr[BigDecimal])(using Quotes): Expr[Boolean] =
-    expr match
-      case '{ ${ Expr(x) }: BigDecimal } =>
-        if x < 0 then '{ true }
+  private def lessBigDecimalMacro(expr: Expr[BigDecimal], bound: Expr[Double])(using
+    Quotes
+  ): Expr[Boolean] =
+    (expr, bound) match
+      case ('{ ${ Expr(x) }: BigDecimal }, '{ ${ Expr(y) }: Double }) =>
+        if x < BigDecimal(y) then '{ true }
         else '{ false }
-      case _                             =>
+      case _                                                          =>
         '{ no }
 
   inline given Predicate[Char, Letter] with

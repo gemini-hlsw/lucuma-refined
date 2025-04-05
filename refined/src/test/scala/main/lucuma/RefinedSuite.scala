@@ -53,6 +53,16 @@ class RefinedSuite extends FunSuite {
     assertRefineError("2L.refined[Less[1L]]")
   }
 
+  test("greater bigdecimal") {
+    BigDecimal(2).refined[Greater[1.0]]
+    assertRefineError("BigDecimal(1).refined[Greater[2.0]]")
+  }
+
+  test("less bigdecimal") {
+    BigDecimal(1).refined[Less[2.0]]
+    assertRefineError("BigDecimal(2).refined[Less[1.0]]")
+  }
+
   test("closed interval") {
     0.refined[Interval.Closed[0, 2]]
     1.refined[Interval.Closed[0, 2]]
